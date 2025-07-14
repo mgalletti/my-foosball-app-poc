@@ -1,0 +1,55 @@
+type Coordinates {
+    lat: Float!
+    long: Float!
+}
+
+
+type Place {
+    id: String!
+    name: String!
+    coordinates: Coordinates
+}
+
+enum Expertise {
+    NOVICE
+    INTERMEDIATE
+    ADVANCED
+    EXPERT
+}
+
+type Player {
+    id: String!
+    name: String!
+    expertise: Expertise!
+    points: Int = 0
+}
+
+
+enum ChallengeStatus {
+    OPEN
+    ACTIVE
+    DROPPED
+    TERMINATED
+}
+
+enum ChallengeTime {
+  MORNING
+  AFTERNOON
+  EVENING
+  NIGHT
+}
+
+
+type Challenge {
+    id: String!
+    place: Place!
+    status: ChallengeStatus!
+    date: Date!
+    time: ChallengeTime!
+    owner: Player!
+    players: Player[]
+}
+
+type Query {
+    challenge(id: String!): Challenge
+}

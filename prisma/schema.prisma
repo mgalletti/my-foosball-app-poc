@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  username  String  @id
+  firstName String
+  lastName  String
+  email     String
+  player_id String? @unique
+  player    Player? @relation(fields: [player_id], references: [id])
+}
+
+model Place {
+  id         String      @id
+  name       String
+  lat        Float
+  long       Float
+  challenges Challenge[]
+  status     String
+
+  @@map("places")
+}
+
+model Player {
+  id           String                       @id
+  name         String
+  expertise    String
+  points       Int                          @default(0)
+  challenges   Challenge[]                  @relation("ChallengeOwner")
+  participants ChallengePlayerAssociation[]
+  User         User?
+
+  @@map("players")
+}
+
+model Challenge {
+  id              String                       @id
+  name            String
+  type            String
+  status          String
+  date            DateTime
+  place_id        String
+  player_owner_id String
+  place           Place                        @relation(fields: [place_id], references: [id])
+  owner           Player                       @relation("ChallengeOwner", fields: [player_owner_id], references: [id])
+  players         ChallengePlayerAssociation[]
+  createdAt       DateTime
+  lastUpdate      DateTime
+
+  @@map("challenges")
+}
+
+model ChallengePlayerAssociation {
+  challenge_id String
+  player_id    String
+  challenge    Challenge @relation(fields: [challenge_id], references: [id])
+  player       Player    @relation(fields: [player_id], references: [id])
+
+  @@id([challenge_id, player_id])
+  @@map("challenges_player_association")
+}
