@@ -4,6 +4,16 @@ DELETE FROM challenges WHERE id IN ('challenge1','challenge2','challenge3','chal
 DELETE FROM players WHERE id IN ('player1','player2','player3','player4','player5','player6');
 DELETE FROM places WHERE id IN ('place1','place2','place3','place4');
 DELETE FROM User WHERE username IN ('alice_user','bob_user','charlie_user','diana_user','eve_user','frank_user');
+DELETE FROM addresses WHERE id IN ('3386285706','3386286623','3976146277','5702168','2846630158','2703449220');
+
+-- Insert into addresses
+INSERT INTO addresses (id, name, display_name, lat, long, street, city, 'state', postal_code, country, address_type) VALUES
+  ('3386285706', 'Opera 33', 'Opera 33, 33, Via Carlo Farini, Isola, Municipio 9, Milano, Lombardia, 20159, Italia', 45.4896401, 9.1830758, 'Via Carlo Farini 33', 'Milano', 'Lombardia', '20159', 'Italia', 'amenity'),
+  ('3386286623', 'Belvedere', 'Belvedere, 33, Via Carlo Farini, Isola, Municipio 9, Milano, Lombardia, 20159, Italia', 45.4895254, 9.1830192, 'Via Carlo Farini 33', 'Milano', 'Lombardia', '20159', 'Italia', 'shop'),
+  ('3976146277', 'Blender Farini', 'Blender Farini, 48, Via Carlo Farini, Isola, Municipio 9, Milano, Lombardia, 20159, Italia', 45.4913093, 9.1841357, 'Via Carlo Farini 48', 'Milano', 'Lombardia', '20159', 'Italia', 'amenity'),
+  ('5702168', 'BQE Billiards & Bar', '34th Avenue, Flushing, Queens, Queens County, City of New York, New York, 11354, United States', 40.7666935, -73.8309100, '34th Avenue None', 'City of New York', 'New York', '11354', 'United States', 'road'),
+  ('2846630158', 'Break Bar And Billiards', '32-04, Broadway, Astoria, Queens, Queens County, City of New York, New York, 11106, United States', 40.7613692, -73.9243833, 'Broadway 32-04', 'City of New York', 'New York', '11106', 'United States', 'place'),
+  ('2703449220', 'Anytime Bar & Billiards', '112, West 30th Street, NoMad, Chelsea District, Manhattan, New York County, City of New York, New York, 10001, United States', 40.7474681, -73.9903322, 'West 30th Street 112', 'City of New York', 'New York', '10001', 'United States', 'place');
 
 -- Insert into User
 INSERT INTO User (username, firstName, lastName, email) VALUES
@@ -31,7 +41,7 @@ INSERT INTO players (id, name, expertise, points) VALUES
   ('player6', 'Frank', 'BEGINNER', 150);
 
 -- Insert into challenges
-INSERT INTO challenges (id, name, type, status, date, place_id, player_owner_id, createdAt, lastUpdate) VALUES
+INSERT INTO challenges (id, name, time, status, date, place_id, player_owner_id, createdAt, lastUpdate) VALUES
   ('challenge1', 'Morning Match', 'MORNING', 'ACTIVE', '2024-12-20 09:00:00', 'place1', 'player1', '2024-12-19 08:00:00', '2024-12-19 08:00:00'),
   ('challenge2', 'Evening Doubles', 'EVENING', 'OPEN', '2024-12-21 18:00:00', 'place2', 'player2', '2024-12-20 17:00:00', '2024-12-20 17:00:00'),
   ('challenge3', 'Lunch Break Game', 'AFTERNOON', 'ACTIVE', '2024-12-20 12:30:00', 'place3', 'player3', '2024-12-19 11:30:00', '2024-12-19 11:30:00'),

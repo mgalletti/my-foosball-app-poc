@@ -2,14 +2,14 @@ import { CommonAttributes } from './common.js';
 
 export enum NearbyPlacesUnit {
   KM = 'KM',
-  MILES = 'Miles',
+  MILES = 'MILES',
 }
 
 export enum PlaceStatus {
-  ACTIVE = 'Active',
-  INACTIVE = 'Inactive',
-  UNKNOWN = 'Unknown',
-  UNVERIFIED = 'Unverified',
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  UNKNOWN = 'UNKNOWN',
+  UNVERIFIED = 'UNVERIFIED',
 }
 
 export interface Coordinates {
@@ -17,7 +17,17 @@ export interface Coordinates {
   long: number;
 }
 
+export interface Address {
+  street: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  type: string;
+}
+
 export interface Place extends CommonAttributes {
   coordinates: Coordinates;
   status: PlaceStatus;
+  address?: Address;
 }

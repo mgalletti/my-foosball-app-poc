@@ -3,6 +3,7 @@ import { ChallengeService } from '../src/services/challenge-service';
 describe('ChallengeService', () => {
   let service: ChallengeService;
   let mockRepo: any;
+  let mockSvc: any
 
   beforeEach(() => {
     mockRepo = {
@@ -13,21 +14,31 @@ describe('ChallengeService', () => {
       createPlayer: jest.fn(),
       getAllPlayers: jest.fn(),
     };
-    service = new ChallengeService(mockRepo);
+    mockSvc = {
+      create: jest.fn(),
+      getAll: jest.fn(),
+      getById: jest.fn(),
+      delete: jest.fn(),
+      update: jest.fn(),
+      search: jest.fn(),
+    };
+    service = new ChallengeService(mockSvc, mockRepo);
   });
 
   it('should create a challenge', async () => {
     mockRepo.createChallenge.mockResolvedValue({ id: '1', name: 'Test Challenge' });
+    mockSvc.create.mockResolvedValue({ id: '1', name: 'Test Challenge' });
     const result = await service.createChallenge({ name: 'Test Challenge' } as any);
     expect(result).toEqual({ id: '1', name: 'Test Challenge' });
-    expect(mockRepo.createChallenge).toHaveBeenCalled();
+    expect(mockSvc.create).toHaveBeenCalled();
   });
 
   it('should get challenges', async () => {
     mockRepo.getAllChallenges.mockResolvedValue([{ id: '1', name: 'Test Challenge' }]);
+    mockSvc.getAll.mockResolvedValue([{ id: '1', name: 'Test Challenge' }]);
     const result = await service.getChallenges();
     expect(result).toEqual([{ id: '1', name: 'Test Challenge' }]);
-    expect(mockRepo.getAllChallenges).toHaveBeenCalled();
+    expect(mockSvc.getAll).toHaveBeenCalled();
   });
 
   it('should create a place', async () => {

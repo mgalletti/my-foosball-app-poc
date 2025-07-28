@@ -1,10 +1,10 @@
 import { CommonAttributes } from './common.js';
 
 export enum Expertise {
-  NOVICE = 'Novice',
-  INTERMEDIATE = 'Intermediate',
-  ADVANCED = 'Advanced',
-  EXPERT = 'Expert',
+  NOVICE = 'NOVICE',
+  INTERMEDIATE = 'INTERMEDIATE',
+  ADVANCED = 'ADVANCED',
+  EXPERT = 'EXPERT',
 }
 
 export interface Player extends CommonAttributes {

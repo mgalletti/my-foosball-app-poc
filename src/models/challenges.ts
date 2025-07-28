@@ -3,17 +3,17 @@ import { Place } from './places.js';
 import { Player } from './players.js';
 
 export enum ChallengeStatus {
-  OPEN = 'Open',
-  ACTIVE = 'Active',
-  DROPPED = 'Dropped',
-  TERMINATED = 'Terminated',
+  OPEN = 'OPEN',
+  ACTIVE = 'ACTIVE',
+  DROPPED = 'DROPPED',
+  TERMINATED = 'TERMINATED',
 }
 
 export enum ChallengeTime {
-  MORNING = 'Morning',
-  AFTERNOON = 'Afternoon',
-  EVENING = 'Evening',
-  NIGHT = 'Night',
+  MORNING = 'MORNING',
+  AFTERNOON = 'AFTERNOON',
+  EVENING = 'EVENING',
+  NIGHT = 'NIGHT',
 }
 
 export interface Challenge extends CommonAttributes {

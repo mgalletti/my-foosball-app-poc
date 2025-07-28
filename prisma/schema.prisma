@@ -16,12 +16,28 @@ model User {
   player    Player? @relation(fields: [player_id], references: [id])
 }
 
+model Address {
+  id           String @id
+  name         String
+  display_name String
+  lat          Float
+  long         Float
+  street       String
+  city         String
+  state        String
+  postal_code  String
+  country      String
+  address_type String
+
+  @@map("addresses")
+}
+
 model Place {
   id         String      @id
   name       String
   lat        Float
   long       Float
-  challenges Challenge[]
+  challenges Challenge[] @relation("ChallengePlace")
   status     String
 
   @@map("places")
@@ -42,12 +58,12 @@ model Player {
 model Challenge {
   id              String                       @id
   name            String
-  type            String
+  time            String
   status          String
   date            DateTime
   place_id        String
   player_owner_id String
-  place           Place                        @relation(fields: [place_id], references: [id])
+  place           Place                        @relation("ChallengePlace", fields: [place_id], references: [id], onDelete: Cascade)
   owner           Player                       @relation("ChallengeOwner", fields: [player_owner_id], references: [id])
   players         ChallengePlayerAssociation[]
   createdAt       DateTime
@@ -59,8 +75,8 @@ model Challenge {
 model ChallengePlayerAssociation {
   challenge_id String
   player_id    String
-  challenge    Challenge @relation(fields: [challenge_id], references: [id])
-  player       Player    @relation(fields: [player_id], references: [id])
+  challenge    Challenge @relation(fields: [challenge_id], references: [id], onDelete: Cascade)
+  player       Player    @relation(fields: [player_id], references: [id], onDelete: Cascade)
 
   @@id([challenge_id, player_id])
   @@map("challenges_player_association")
