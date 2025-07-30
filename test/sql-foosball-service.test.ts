@@ -3,7 +3,7 @@ import { SQLFoosballService } from '../src/services/sql-foosball-service.js';
 import { ChallengeStatus, ChallengeTime } from '../src/models/challenges.js';
 import { PlaceStatus } from '../src/models/places.js';
 import { Expertise } from '../src/models/players.js';
-import { ChallengeDataObject } from '../src/schemas/challenge-schema.js';
+import { ChallengeDataSchema } from '../src/schemas/challenge-schema.js';
 import { PlaceDataObject } from '../src/schemas/place-schema.js';
 import { PlayerDataObject } from '../src/schemas/player-schema.js';
 
@@ -76,8 +76,7 @@ describe('SQLFoosballService', () => {
     test('should create challenge', async () => {
       (mockPrismaClient.challenge.create as jest.Mock).mockResolvedValue(mockChallengeData);
 
-      const challengeData: ChallengeDataObject = {
-        id: 'challenge_1',
+      const challengeData: ChallengeDataSchema = {
         name: 'New Challenge',
         placeId: 'place_1',
         date: new Date('2024-01-01'),

@@ -1,7 +1,7 @@
 import express from 'express';
 import path from 'path';
 import type { Request, Response } from 'express';
-import { challengeRouter } from './routes/challenge-routes.js';
+import { foosballServiceRouter } from './routes/foosball-service-routes.js';
 import cors from 'cors';
 import http from 'http';
 import * as pinoHttp from 'pino-http';
@@ -36,7 +36,7 @@ async function startServer() {
   app.use(express.static(path.join(__dirname, '../public')));
 
   // Routes
-  app.use('/', challengeRouter);
+  app.use('/', foosballServiceRouter);
 
   app.get('/', (_req: Request, res: Response) => {
     res.sendFile(path.join(__dirname, '../public/index.html'));

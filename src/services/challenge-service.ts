@@ -2,7 +2,7 @@ import { Challenge } from '../models/challenges.js';
 import { Place } from '../models/places.js';
 import { Player } from '../models/players.js';
 import { ChallengeRepository } from '../repositories/repository-interfaces.js';
-import { ChallengeDataObject } from '../schemas/challenge-schema.js';
+import { ChallengeDataSchema } from '../schemas/challenge-schema.js';
 import { PlaceDataObject } from '../schemas/place-schema.js';
 import { PlayerDataObject } from '../schemas/player-schema.js';
 import { BaseServiceInterface, ServicePaginationOptions } from './base-service.js';
@@ -15,7 +15,7 @@ export class ChallengeService {
     private readonly challengeDB: ChallengeRepository,
   ) {}
 
-  async createChallenge(challenge: ChallengeDataObject): Promise<Challenge> {
+  async createChallenge(challenge: ChallengeDataSchema): Promise<Challenge> {
     return this.challengeSvc.create(challenge);
   }
 
@@ -46,9 +46,9 @@ export class ChallengeService {
  * Challenges service
  */
 
-export class ChallengesService implements BaseServiceInterface<Challenge, ChallengeDataObject> {
+export class ChallengesService implements BaseServiceInterface<Challenge, ChallengeDataSchema> {
   constructor(
-    private readonly challengeCRUDRepository: BaseCRUDService<Challenge, ChallengeDataObject, string>,
+    private readonly challengeCRUDRepository: BaseCRUDService<Challenge, ChallengeDataSchema, string>,
     private readonly challengeSearchRepository: BaseSearchService<Challenge>,
   ) {}
 
@@ -79,10 +79,10 @@ export class ChallengesService implements BaseServiceInterface<Challenge, Challe
     return this.challengeCRUDRepository.getById(id);
   }
 
-  async create(data: ChallengeDataObject): Promise<Challenge> {
+  async create(data: ChallengeDataSchema): Promise<Challenge> {
     return this.challengeCRUDRepository.create(data);
   }
-  async update(id: string, data: ChallengeDataObject): Promise<Challenge> {
+  async update(id: string, data: ChallengeDataSchema): Promise<Challenge> {
     return this.challengeCRUDRepository.update(id, data);
   }
   async delete(id: string): Promise<void> {

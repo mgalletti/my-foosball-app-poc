@@ -3,7 +3,7 @@ import { PrismaChallengeSearchRepository, PrismaChallengeCRUDRepository } from '
 import { ChallengeStatus, ChallengeTime } from '../../src/models/challenges.js';
 import { PlaceStatus } from '../../src/models/places.js';
 import { Expertise } from '../../src/models/players.js';
-import { ChallengeDataObject } from '../../src/schemas/challenge-schema.js';
+import { ChallengeDataSchema } from '../../src/schemas/challenge-schema.js';
 
 // Mock Prisma Client
 const mockPrismaClient = {
@@ -155,8 +155,7 @@ describe('PrismaChallengeCRUDRepository', () => {
     (mockPrismaClient.challenge.create as jest.Mock).mockResolvedValue(mockChallengeData);
     
 
-    const challengeData: ChallengeDataObject = {
-      id: 'challenge_1',
+    const challengeData: ChallengeDataSchema = {
       name: 'New Challenge',
       placeId: 'place_1',
       date: new Date('2024-01-01'),
@@ -175,8 +174,7 @@ describe('PrismaChallengeCRUDRepository', () => {
   test('should update challenge', async () => {
     (mockPrismaClient.challenge.update as jest.Mock).mockResolvedValue(mockChallengeData);
 
-    const updateData: ChallengeDataObject = {
-      id: 'challenge_1',
+    const updateData: ChallengeDataSchema = {
       name: 'Updated Challenge',
       placeId: 'place_1',
       date: new Date('2024-01-02'),

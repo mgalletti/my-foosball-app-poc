@@ -8,3 +8,11 @@ export interface PaginationOptions {
   maxResult: number;
   nextToken?: string;
 }
+
+export enum RepositoryOperationType {
+  CREATE = 'CREATE',
+  UPDATE = 'UPDATE',
+  READ = 'READ',
+  DELETE = 'DELETE',
+  UNKNOWN = 'UNKNOWN',
+}

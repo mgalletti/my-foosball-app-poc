@@ -1,12 +1,12 @@
 import { Challenge } from '../models/challenges.js';
 import { Place } from '../models/places.js';
 import { Player } from '../models/players.js';
-import { ChallengeDataObject } from '../schemas/challenge-schema.js';
+import { ChallengeDataSchema } from '../schemas/challenge-schema.js';
 import { PlaceDataObject } from '../schemas/place-schema.js';
 import { PlayerDataObject } from '../schemas/player-schema.js';
 import { FoosballServiceFacade } from './foosball-service.js';
 import { BaseServiceInterface } from './base-service.js';
-import { PrismaClient } from '@prisma/client/extension';
+import { PrismaClient } from '@prisma/client';
 import {
   PrismaChallengeCRUDRepository,
   PrismaChallengeSearchRepository,
@@ -20,7 +20,7 @@ import { PlacesService } from './place-service.js';
 import { PlayersService } from './player-service.js';
 
 export class SQLFoosballService implements FoosballServiceFacade {
-  private readonly challengesSvc: BaseServiceInterface<Challenge, ChallengeDataObject>;
+  private readonly challengesSvc: BaseServiceInterface<Challenge, ChallengeDataSchema>;
   private readonly placesSvc: BaseServiceInterface<Place, PlaceDataObject>;
   private readonly playersSvc: BaseServiceInterface<Player, PlayerDataObject>;
 
@@ -42,8 +42,12 @@ export class SQLFoosballService implements FoosballServiceFacade {
     );
   }
 
-  async createChallenge(challenge: ChallengeDataObject): Promise<Challenge> {
-    return this.challengesSvc.create(challenge);
+  async createChallenge(challenge: ChallengeDataSchema): Promise<Challenge> {
+    try {
+      return await this.challengesSvc.create(challenge);
+    } catch (error) {
+      throw new Error(`Failed to create challenge: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   }
   async createPlace(place: PlaceDataObject): Promise<Place> {
     return this.placesSvc.create(place);
@@ -69,7 +73,7 @@ export class SQLFoosballService implements FoosballServiceFacade {
   async getPlayerById(id: string): Promise<Player | undefined> {
     return this.playersSvc.getById(id);
   }
-  async updateChallenge(id: string, challenge: ChallengeDataObject): Promise<Challenge> {
+  async updateChallenge(id: string, challenge: ChallengeDataSchema): Promise<Challenge> {
     return this.challengesSvc.update(id, challenge);
   }
   async updatePlace(id: string, place: PlaceDataObject): Promise<Place> {

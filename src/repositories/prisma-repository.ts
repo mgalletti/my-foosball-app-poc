@@ -2,13 +2,15 @@ import { PrismaClient, Prisma } from '@prisma/client';
 import { Challenge, ChallengeStatus, ChallengeTime } from '../models/challenges.js';
 import { Coordinates, Place, PlaceStatus } from '../models/places.js';
 import { Expertise, Player } from '../models/players.js';
-import { NotFoundError } from '../utils/exceptions.js';
+import { GenericOperationError, NotFoundError, DeleteOperationError } from '../utils/exceptions.js';
 import { BaseCRUDService, BaseSearchService, ChallengeRepository, PaginatedResult } from './repository-interfaces.js';
 import { logger } from '../utils/logger.js';
-import { ChallengeDataObject } from '../schemas/challenge-schema.js';
+import { ChallengeDataSchema } from '../schemas/challenge-schema.js';
 import { PlaceDataObject } from '../schemas/place-schema.js';
 import { PlayerDataObject } from '../schemas/player-schema.js';
 import { PaginationOptions } from '../models/common.js';
+import { buildObjectId } from '../utils/common.js';
+import { exceptionMapping } from '../utils/exception-mapping-decorator.js';
 
 type ChallengeWithRelations = Prisma.ChallengeGetPayload<{
   include: {
@@ -45,140 +47,6 @@ export const mapToChallenge = (prismaChallenge: ChallengeWithRelations): Challen
     })),
   };
 };
-
-export class PrismaChallengeRepository implements ChallengeRepository {
-  constructor(private readonly prismaClient: PrismaClient = new PrismaClient()) {}
-
-  async createChallenge(
-    name: string,
-    placeId: string,
-    date: Date,
-    time: ChallengeTime,
-    ownerId: string,
-    status: ChallengeStatus = ChallengeStatus.ACTIVE,
-    playersId?: string[],
-  ): Promise<Challenge> {
-    const challengeId = `challenge_${Date.now()}`;
-    logger.info('Creating challenge', { challengeId, placeId, ownerId });
-
-    try {
-      const challenge = await this.prismaClient.challenge.create({
-        data: {
-          id: challengeId,
-          name: name,
-          time: time,
-          status: status,
-          date: date,
-          place_id: placeId,
-          player_owner_id: ownerId,
-          createdAt: new Date(),
-          lastUpdate: new Date(),
-          players: playersId
-            ? {
-                create: playersId.map((playerId) => ({
-                  player_id: playerId,
-                })),
-              }
-            : undefined,
-        },
-        include: {
-          place: true,
-          owner: true,
-          players: { include: { player: true } },
-        },
-      });
-
-      logger.info('Challenge created successfully', { challengeId });
-      return mapToChallenge(challenge);
-    } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2003') {
-          // Foreign key constraint failed
-          throw new NotFoundError('Place or Player', placeId + '/' + ownerId);
-        }
-      }
-      throw error;
-    }
-  }
-
-  async getAllChallenges(): Promise<Challenge[]> {
-    logger.info('Fetching all challenges');
-    const challenges = await this.prismaClient.challenge.findMany({
-      include: {
-        place: true,
-        owner: true,
-        players: { include: { player: true } },
-      },
-    });
-
-    logger.info('Challenges fetched', { count: challenges.length });
-    return challenges.map(mapToChallenge);
-  }
-
-  async createPlace(name: string, coordinates: Coordinates): Promise<Place> {
-    const placeId = `place_${Date.now()}`;
-
-    const place = await this.prismaClient.place.create({
-      data: {
-        id: placeId,
-        name,
-        lat: coordinates.lat,
-        long: coordinates.long,
-        status: PlaceStatus.UNVERIFIED,
-      },
-    });
-
-    return {
-      id: place.id,
-      name: place.name,
-      coordinates: { lat: place.lat, long: place.long },
-      status: place.status as PlaceStatus,
-    };
-  }
-
-  async getAllPlaces(): Promise<Place[]> {
-    const places = await this.prismaClient.place.findMany();
-
-    return places.map((place) => ({
-      id: place.id,
-      name: place.name,
-      coordinates: { lat: place.lat, long: place.long },
-      status: place.status as PlaceStatus,
-    }));
-  }
-
-  async createPlayer(name: string, expertise: Expertise, points: number = 0): Promise<Player> {
-    const playerId = `player_${Date.now()}`;
-
-    const player = await this.prismaClient.player.create({
-      data: {
-        id: playerId,
-        name,
-        expertise,
-        points,
-      },
-    });
-
-    return {
-      id: player.id,
-      name: player.name,
-      expertise,
-      points,
-    };
-  }
-
-  async getAllPlayers(): Promise<Player[]> {
-    const players = await this.prismaClient.player.findMany();
-
-    return players.map((player) => ({
-      id: player.id,
-      name: player.name,
-      expertise: player.expertise as Expertise,
-      points: player.points,
-    }));
-  }
-}
-
 interface FindManyResult<T> {
   cusrorId?: string;
   results: T[];
@@ -254,7 +122,7 @@ export class PrismaChallengeSearchRepository extends BasePrismaSearchRepository<
   }
 }
 
-export class PrismaChallengeCRUDRepository implements BaseCRUDService<Challenge, ChallengeDataObject, string> {
+export class PrismaChallengeCRUDRepository implements BaseCRUDService<Challenge, ChallengeDataSchema, string> {
   private readonly searchRepository: PrismaChallengeSearchRepository;
 
   constructor(private readonly prismaClient: PrismaClient = new PrismaClient()) {
@@ -282,8 +150,8 @@ export class PrismaChallengeCRUDRepository implements BaseCRUDService<Challenge,
     return challenge ? mapToChallenge(challenge) : undefined;
   }
 
-  async create(data: ChallengeDataObject): Promise<Challenge> {
-    const challengeId = data.id;
+  async create(data: ChallengeDataSchema): Promise<Challenge> {
+    const challengeId = buildObjectId('ch');
 
     logger.info('Creating challenge', { challengeId, placeId: data.placeId, ownerId: data.ownerId });
 
@@ -327,7 +195,7 @@ export class PrismaChallengeCRUDRepository implements BaseCRUDService<Challenge,
     }
   }
 
-  async update(id: string, data: ChallengeDataObject): Promise<Challenge> {
+  async update(id: string, data: ChallengeDataSchema): Promise<Challenge> {
     const challenge = await this.prismaClient.challenge.update({
       where: { id },
       data: {
@@ -356,6 +224,10 @@ export class PrismaChallengeCRUDRepository implements BaseCRUDService<Challenge,
     return mapToChallenge(challenge);
   }
 
+  @exceptionMapping([
+    [Prisma.PrismaClientKnownRequestError, DeleteOperationError, 'Cannot delete resource'],
+    [Error, GenericOperationError, 'Unknown error while deleting resource'],
+  ])
   async delete(id: string): Promise<void> {
     await this.prismaClient.challenge.delete({
       where: { id },
@@ -573,5 +445,142 @@ export class PrismaPlayerCRUDRepository implements BaseCRUDService<Player, Playe
       where: { id },
     });
     logger.info(`Deleted player id: ${resp.id}`);
+  }
+}
+
+/**
+ * DEPRECATED
+ */
+
+export class PrismaChallengeRepository implements ChallengeRepository {
+  constructor(private readonly prismaClient: PrismaClient = new PrismaClient()) {}
+
+  async createChallenge(
+    name: string,
+    placeId: string,
+    date: Date,
+    time: ChallengeTime,
+    ownerId: string,
+    status: ChallengeStatus = ChallengeStatus.ACTIVE,
+    playersId?: string[],
+  ): Promise<Challenge> {
+    const challengeId = `challenge_${Date.now()}`;
+    logger.info('Creating challenge', { challengeId, placeId, ownerId });
+
+    try {
+      const challenge = await this.prismaClient.challenge.create({
+        data: {
+          id: challengeId,
+          name: name,
+          time: time,
+          status: status,
+          date: date,
+          place_id: placeId,
+          player_owner_id: ownerId,
+          createdAt: new Date(),
+          lastUpdate: new Date(),
+          players: playersId
+            ? {
+                create: playersId.map((playerId) => ({
+                  player_id: playerId,
+                })),
+              }
+            : undefined,
+        },
+        include: {
+          place: true,
+          owner: true,
+          players: { include: { player: true } },
+        },
+      });
+
+      logger.info('Challenge created successfully', { challengeId });
+      return mapToChallenge(challenge);
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2003') {
+          // Foreign key constraint failed
+          throw new NotFoundError('Place or Player', placeId + '/' + ownerId);
+        }
+      }
+      throw error;
+    }
+  }
+
+  async getAllChallenges(): Promise<Challenge[]> {
+    logger.info('Fetching all challenges');
+    const challenges = await this.prismaClient.challenge.findMany({
+      include: {
+        place: true,
+        owner: true,
+        players: { include: { player: true } },
+      },
+    });
+
+    logger.info('Challenges fetched', { count: challenges.length });
+    return challenges.map(mapToChallenge);
+  }
+
+  async createPlace(name: string, coordinates: Coordinates): Promise<Place> {
+    const placeId = `place_${Date.now()}`;
+
+    const place = await this.prismaClient.place.create({
+      data: {
+        id: placeId,
+        name,
+        lat: coordinates.lat,
+        long: coordinates.long,
+        status: PlaceStatus.UNVERIFIED,
+      },
+    });
+
+    return {
+      id: place.id,
+      name: place.name,
+      coordinates: { lat: place.lat, long: place.long },
+      status: place.status as PlaceStatus,
+    };
+  }
+
+  async getAllPlaces(): Promise<Place[]> {
+    const places = await this.prismaClient.place.findMany();
+
+    return places.map((place) => ({
+      id: place.id,
+      name: place.name,
+      coordinates: { lat: place.lat, long: place.long },
+      status: place.status as PlaceStatus,
+    }));
+  }
+
+  async createPlayer(name: string, expertise: Expertise, points: number = 0): Promise<Player> {
+    const playerId = `player_${Date.now()}`;
+
+    const player = await this.prismaClient.player.create({
+      data: {
+        id: playerId,
+        name,
+        expertise,
+        points,
+      },
+    });
+
+    return {
+      id: player.id,
+      name: player.name,
+      expertise,
+      points,
+    };
+  }
+
+  async getAllPlayers(): Promise<Player[]> {
+    const players = await this.prismaClient.player.findMany();
+
+    return players.map((player) => ({
+      id: player.id,
+      name: player.name,
+      expertise: player.expertise as Expertise,
+      points: player.points,
+    }));
   }
 }

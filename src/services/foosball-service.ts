@@ -1,28 +1,28 @@
 import { Challenge } from '../models/challenges.js';
 import { Player } from '../models/players.js';
 import { Place } from '../models/places.js';
-import { ChallengeDataObject } from '../schemas/challenge-schema.js';
+import { ChallengeDataSchema } from '../schemas/challenge-schema.js';
 import { PlaceDataObject } from '../schemas/place-schema.js';
 import { PlayerDataObject } from '../schemas/player-schema.js';
 import { InMemoryChallengeRepository } from '../repositories/in-memory-challenge-repository.js';
 import { logger } from '../utils/logger.js';
 
 export interface FoosballServiceFacade {
-  createChallenge(challenge: ChallengeDataObject): Promise<Challenge>;
+  createChallenge(challenge: ChallengeDataSchema): Promise<Challenge>;
   getChallenges(): Promise<Challenge[]>;
   createPlace(place: PlaceDataObject): Promise<Place>;
   getPlaces(): Promise<Place[]>;
   createPlayer(player: PlayerDataObject): Promise<Player>;
   getPlayers(): Promise<Player[]>;
-  getChallengeById(id: string): Promise<Challenge | undefined>
-  getPlaceById(id: string): Promise<Place | undefined> 
-  getPlayerById(id: string): Promise<Player | undefined> 
-  updateChallenge(id: string, challenge: ChallengeDataObject): Promise<Challenge> 
-  updatePlace(id: string, place: PlaceDataObject): Promise<Place> 
-  updatePlayer(id: string, player: PlayerDataObject): Promise<Player> 
-  deleteChallenge(id: string): Promise<void> 
-  deletePlace(id: string): Promise<void>
-  deletePlayer(id: string): Promise<void>
+  getChallengeById(id: string): Promise<Challenge | undefined>;
+  getPlaceById(id: string): Promise<Place | undefined>;
+  getPlayerById(id: string): Promise<Player | undefined>;
+  updateChallenge(id: string, challenge: ChallengeDataSchema): Promise<Challenge>;
+  updatePlace(id: string, place: PlaceDataObject): Promise<Place>;
+  updatePlayer(id: string, player: PlayerDataObject): Promise<Player>;
+  deleteChallenge(id: string): Promise<void>;
+  deletePlace(id: string): Promise<void>;
+  deletePlayer(id: string): Promise<void>;
 }
 
 export class InMemoryFoosballService implements FoosballServiceFacade {
@@ -30,7 +30,7 @@ export class InMemoryFoosballService implements FoosballServiceFacade {
   constructor() {
     this.challengeDB = new InMemoryChallengeRepository();
   }
-  async createChallenge(challenge: ChallengeDataObject): Promise<Challenge> {
+  async createChallenge(challenge: ChallengeDataSchema): Promise<Challenge> {
     return this.challengeDB.createChallenge(
       challenge.name,
       challenge.placeId,
@@ -77,16 +77,19 @@ export class InMemoryFoosballService implements FoosballServiceFacade {
     throw new Error('Not implemented');
   }
 
-  async updateChallenge(id: string, challenge: ChallengeDataObject): Promise<Challenge> {
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  async updateChallenge(id: string, challenge: ChallengeDataSchema): Promise<Challenge> {
     logger.info('Updating challenge', { id });
     throw new Error('Not implemented');
   }
 
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   async updatePlace(id: string, place: PlaceDataObject): Promise<Place> {
     logger.info('Updating place', { id });
     throw new Error('Not implemented');
   }
 
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   async updatePlayer(id: string, player: PlayerDataObject): Promise<Player> {
     logger.info('Updating player', { id });
     throw new Error('Not implemented');

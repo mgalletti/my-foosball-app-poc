@@ -2,11 +2,17 @@ import { PrismaClient } from '@prisma/client';
 import { SQLFoosballService } from '../src/services/sql-foosball-service.js';
 import { ChallengeStatus, ChallengeTime } from '../src/models/challenges.js';
 import { Expertise } from '../src/models/players.js';
-import { ChallengeDataObject } from '../src/schemas/challenge-schema.js';
+import { ChallengeDataSchema } from '../src/schemas/challenge-schema.js';
 import { PlaceDataObject } from '../src/schemas/place-schema.js';
 import { PlayerDataObject } from '../src/schemas/player-schema.js';
 import { execSync } from 'child_process';
 import path from 'path';
+
+// Mock buildObjectId function
+const dummyId = `dummyId`
+jest.mock('../src/utils/common.js', () => ({
+  buildObjectId: jest.fn(() => dummyId)
+}));
 
 describe('SQLFoosballService Integration Tests', () => {
   let prismaClient: PrismaClient;
@@ -29,8 +35,7 @@ describe('SQLFoosballService Integration Tests', () => {
 
   describe('Challenge operations', () => {
     test('should create and retrieve challenge', async () => {
-      const challengeData: ChallengeDataObject = {
-        id: 'integration-test-challenge',
+      const challengeData: ChallengeDataSchema = {
         name: 'Integration Test Challenge',
         placeId: 'place1',
         date: new Date('2024-12-25T10:00:00Z'),
@@ -40,17 +45,17 @@ describe('SQLFoosballService Integration Tests', () => {
         playersId: ['player2'],
       };
 
-      if (await service.getChallengeById(challengeData.id)) {
-        service.deleteChallenge(challengeData.id)
+      if (await service.getChallengeById(dummyId)) {
+        service.deleteChallenge(dummyId)
       }
 
       const created = await service.createChallenge(challengeData);
-      expect(created.id).toBe('integration-test-challenge');
+      expect(created.id).toBe(dummyId);
       expect(created.name).toBe('Integration Test Challenge');
       expect(created.players).toHaveLength(1);
 
       const challenges = await service.getChallenges();
-      const found = challenges.find(c => c.id === 'integration-test-challenge');
+      const found = challenges.find(c => c.id === dummyId);
       expect(found).toBeDefined();
       expect(found?.name).toBe('Integration Test Challenge');
     });
@@ -62,8 +67,8 @@ describe('SQLFoosballService Integration Tests', () => {
     });
 
     test('should update challenge', async () => {
-      const updateData: ChallengeDataObject = {
-        id: 'challenge1',
+      const id = 'challenge1'
+      const updateData: ChallengeDataSchema = {
         name: 'Updated Challenge',
         placeId: 'place1',
         date: new Date('2024-12-26T10:00:00Z'),
@@ -72,15 +77,13 @@ describe('SQLFoosballService Integration Tests', () => {
         status: ChallengeStatus.TERMINATED,
       };
 
-      const updated = await service.updateChallenge('challenge1', updateData);
+      const updated = await service.updateChallenge(id, updateData);
       expect(updated.name).toBe('Updated Challenge');
       expect(updated.status).toBe(ChallengeStatus.TERMINATED);
     });
 
     test('should delete challenge', async () => {
-      const testId = 'test-delete-challenge';
-      const challengeData: ChallengeDataObject = {
-        id: testId,
+      const challengeData: ChallengeDataSchema = {
         name: 'Delete Test',
         placeId: 'place1',
         date: new Date('2024-12-25T10:00:00Z'),
@@ -89,10 +92,16 @@ describe('SQLFoosballService Integration Tests', () => {
         status: ChallengeStatus.OPEN,
       };
 
+      // clear if some have left from previous executions
+      const challenge = await service.getChallengeById(dummyId);
+      if (challenge) {
+        await service.deleteChallenge(dummyId);
+      }
+
       await service.createChallenge(challengeData);
-      await service.deleteChallenge(testId);
+      await service.deleteChallenge(dummyId);
       
-      const deleted = await service.getChallengeById(testId);
+      const deleted = await service.getChallengeById(dummyId);
       expect(deleted).toBeUndefined();
     });
 

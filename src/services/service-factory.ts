@@ -8,7 +8,7 @@ enum ServiceDBEngines {
   MONGODB = 'MONGODB',
 }
 
-export class ChallengeServiceFactory {
+export class FoosballServiceFactory {
   static getInstance(): FoosballServiceFacade {
     const dbEngine = process.env.DB_ENGINE || ServiceDBEngines.IN_MEMORY;
 

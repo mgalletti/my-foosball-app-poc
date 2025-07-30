@@ -1,10 +1,15 @@
 import { PrismaClient } from '@prisma/client';
 import { PrismaChallengeSearchRepository, PrismaChallengeCRUDRepository } from '../../src/repositories/prisma-repository.js';
 import { ChallengeStatus, ChallengeTime } from '../../src/models/challenges.js';
-import { ChallengeDataObject } from '../../src/schemas/challenge-schema.js';
+import { ChallengeDataSchema } from '../../src/schemas/challenge-schema.js';
 import { execSync } from 'child_process';
 import path from 'path';
-import { placeObjectSchema } from '../../src/schemas/place-schema.js';
+
+// Mock buildObjectId function
+const dummyId = `dummyId`
+jest.mock('../../src/utils/common.js', () => ({
+  buildObjectId: jest.fn(() => dummyId)
+}));
 
 describe('Prisma Repository Integration Tests', () => {
   let prismaClient: PrismaClient;
@@ -105,17 +110,13 @@ describe('Prisma Repository Integration Tests', () => {
     });
 
     test('should create new challenge', async () => {
-      const id = `test-challenge-1`;
-
       // clear if some have left from previous executions
-      const challenge = await crudRepository.getById(id);
+      const challenge = await crudRepository.getById(dummyId);
       if (challenge) {
-        await crudRepository.delete(id);
+        await crudRepository.delete(dummyId);
       }
 
-      // const id = `test-challenge-${Date.now()}`;
-      const challengeData: ChallengeDataObject = {
-        id: id,
+      const challengeData: ChallengeDataSchema = {
         name: 'Test Challenge',
         placeId: 'place1',
         date: new Date('2024-12-25T10:00:00Z'),
@@ -127,7 +128,7 @@ describe('Prisma Repository Integration Tests', () => {
       
       const result = await crudRepository.create(challengeData);
       
-      expect(result.id).toBe(id);
+      expect(result.id).toBe(dummyId);
       expect(result.name).toBe('Test Challenge');
       expect(result.place.id).toBe('place1');
       expect(result.owner.id).toBe('player1');
@@ -135,12 +136,11 @@ describe('Prisma Repository Integration Tests', () => {
       expect(result.players[0].id).toBe('player2');
 
       // delete record just created
-      await crudRepository.delete(id);
+      await crudRepository.delete(dummyId);
     });
 
     test('should update existing challenge', async () => {
-      const updateData: ChallengeDataObject = {
-        id: 'challenge1',
+      const updateData: ChallengeDataSchema = {
         name: 'Updated Morning Match',
         placeId: 'place2',
         date: new Date('2024-12-25T11:00:00Z'),
@@ -158,10 +158,8 @@ describe('Prisma Repository Integration Tests', () => {
     });
 
     test('should delete challenge', async () => {
-      const id = 'test-delete-challenge'
       // First create a challenge to delete
-      const challengeData: ChallengeDataObject = {
-        id: id,
+      const challengeData: ChallengeDataSchema = {
         name: 'Delete Me',
         placeId: 'place1',
         date: new Date('2024-12-25T10:00:00Z'),
@@ -173,10 +171,10 @@ describe('Prisma Repository Integration Tests', () => {
       await crudRepository.create(challengeData);
 
       // Then delete it
-      await crudRepository.delete(id);
+      await crudRepository.delete(dummyId);
 
       // Verify it's gone
-      const result = await crudRepository.getById(id);
+      const result = await crudRepository.getById(dummyId);
       expect(result).toBeUndefined();
     });
   });

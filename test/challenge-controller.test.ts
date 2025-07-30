@@ -11,21 +11,21 @@ const mockService = {
 };
 
 jest.mock('../src/services/service-factory', () => ({
-  ChallengeServiceFactory: {
+  FoosballServiceFactory: {
     getInstance: jest.fn(() => mockService),
   },
 }));
 
-import { ChallengeController } from '../src/controllers/challenge-controller';
+import { FoosballServiceController } from '../src/controllers/foosball-service-controller';
 
 const app = express();
 app.use(express.json());
-app.post('/challenges', ChallengeController.createChallenge);
-app.get('/challenges', ChallengeController.getChallenges);
-app.post('/places', ChallengeController.createPlace);
-app.get('/places', ChallengeController.getPlaces);
-app.post('/players', ChallengeController.createPlayer);
-app.get('/players', ChallengeController.getPlayers);
+app.post('/challenges', FoosballServiceController.createChallenge);
+app.get('/challenges', FoosballServiceController.getChallenges);
+app.post('/places', FoosballServiceController.createPlace);
+app.get('/places', FoosballServiceController.getPlaces);
+app.post('/players', FoosballServiceController.createPlayer);
+app.get('/players', FoosballServiceController.getPlayers);
 
 describe('ChallengeController', () => {
   beforeEach(() => {
