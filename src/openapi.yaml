@@ -1,0 +1,220 @@
+openapi: 3.0.0
+info:
+  title: Foosball App API
+  version: 1.0.0
+  description: API for managing foosball challenges, places, and players
+servers:
+  - url: http://localhost:3000
+    description: Development server
+paths:
+  /api/health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: Server is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+  /challenges:
+    get:
+      summary: Get all challenges
+      responses:
+        '200':
+          description: List of challenges
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Challenge'
+    post:
+      summary: Create a new challenge
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChallengeInput'
+      responses:
+        '201':
+          description: Challenge created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Challenge'
+  /places:
+    get:
+      summary: Get all places
+      responses:
+        '200':
+          description: List of places
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Place'
+    post:
+      summary: Create a new place
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaceInput'
+      responses:
+        '201':
+          description: Place created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Place'
+  /players:
+    get:
+      summary: Get all players
+      responses:
+        '200':
+          description: List of players
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Player'
+    post:
+      summary: Create a new player
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlayerInput'
+      responses:
+        '201':
+          description: Player created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+components:
+  schemas:
+    Challenge:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+          enum: [OPEN, ACTIVE, COMPLETED, TERMINATED]
+        date:
+          type: string
+          format: date-time
+        time:
+          type: string
+          enum: [MORNING, AFTERNOON, EVENING, NIGHT]
+        place:
+          $ref: '#/components/schemas/Place'
+        owner:
+          $ref: '#/components/schemas/Player'
+        players:
+          type: array
+          items:
+            $ref: '#/components/schemas/Player'
+    ChallengeInput:
+      type: object
+      required:
+        - name
+        - placeId
+        - date
+        - time
+        - ownerId
+      properties:
+        name:
+          type: string
+        placeId:
+          type: string
+        date:
+          type: string
+          format: date-time
+        time:
+          type: string
+          enum: [MORNING, AFTERNOON, EVENING, NIGHT]
+        ownerId:
+          type: string
+        status:
+          type: string
+          enum: [OPEN, ACTIVE, COMPLETED, TERMINATED]
+        playersId:
+          type: array
+          items:
+            type: string
+    Place:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        coordinates:
+          type: object
+          properties:
+            lat:
+              type: number
+            long:
+              type: number
+        status:
+          type: string
+          enum: [VERIFIED, UNVERIFIED, ACTIVE]
+    PlaceInput:
+      type: object
+      required:
+        - name
+        - coordinates
+      properties:
+        name:
+          type: string
+        coordinates:
+          type: object
+          required:
+            - lat
+            - long
+          properties:
+            lat:
+              type: number
+            long:
+              type: number
+    Player:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        expertise:
+          type: string
+          enum: [BEGINNER, INTERMEDIATE, EXPERT]
+        points:
+          type: integer
+    PlayerInput:
+      type: object
+      required:
+        - name
+        - expertise
+      properties:
+        name:
+          type: string
+        expertise:
+          type: string
+          enum: [BEGINNER, INTERMEDIATE, EXPERT]
+        points:
+          type: integer
+          default: 0

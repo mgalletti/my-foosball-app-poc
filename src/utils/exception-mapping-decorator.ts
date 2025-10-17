@@ -39,7 +39,6 @@ export function exceptionMapping(mappings: ExceptionMapping[]) {
       throw error;
     };
 
-    logger.info(`Decorator applied to method: ${method}`);
     descriptor.value = function (...args: any[]) {
       try {
         const result = method.apply(this, args);

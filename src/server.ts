@@ -7,6 +7,8 @@ import http from 'http';
 import * as pinoHttp from 'pino-http';
 import { logger } from './utils/logger.js';
 import { __dirname } from './utils/path.js';
+import swaggerUi from 'swagger-ui-express';
+import { loadYaml } from './utils/yaml-loader.js';
 
 // import { getApolloServer } from './graphql/index.js';
 // import { getGraphqlMiddleware } from './graphql/index.js';
@@ -27,6 +29,10 @@ async function startServer() {
   app.use('/graphql', getGraphqlMiddleware(server));
 
   */
+
+  // OpenAPI documentation
+  const openApiSpec = loadYaml(path.join(__dirname, '../openapi.yaml'));
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiSpec));
 
   // Middleware
   app.use(pinoHttp.pinoHttp({ logger }));

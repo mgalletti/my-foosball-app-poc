@@ -47,6 +47,35 @@ export const mapToChallenge = (prismaChallenge: ChallengeWithRelations): Challen
     })),
   };
 };
+
+const extFindManyGeneric = async <T>(
+  prismaClientDelegator: Prisma.ChallengeDelegate | Prisma.PlaceDelegate | any,
+  query: Record<string, any>,
+  take: number,
+  order: Prisma.SortOrder,
+  cursorId?: string,
+  includeStatement?: Record<any, any>,
+): Promise<FindManyResult<T>> => {
+  logger.info("This call went through the 'extFindManyGeneric' method!!!");
+  const records = await prismaClientDelegator.findMany({
+    take: take,
+    ...(cursorId && {
+      cursor: { id: cursorId },
+      skip: 1,
+    }),
+    where: query,
+    orderBy: { id: order },
+    include: includeStatement,
+  });
+  logger.info(`Records fetched: ${records.length}`, { count: records.length });
+
+  const lastPostInResults = records[take - 1]; // Remember: zero-based index! :)
+  return {
+    results: records.map(mapToChallenge),
+    cusrorId: lastPostInResults ? lastPostInResults.id : undefined,
+  };
+};
+
 interface FindManyResult<T> {
   cusrorId?: string;
   results: T[];
@@ -98,27 +127,32 @@ export class PrismaChallengeSearchRepository extends BasePrismaSearchRepository<
     order: Prisma.SortOrder,
     cursorId?: string,
   ): Promise<FindManyResult<Challenge>> {
-    const challenges = await this.prismaClient.challenge.findMany({
-      take: take,
-      ...(cursorId && {
-        cursor: { id: cursorId },
-        skip: 1,
-      }),
-      where: query,
-      orderBy: { id: order },
-      include: {
-        place: true,
-        owner: true,
-        players: { include: { player: true } },
-      },
+    return extFindManyGeneric(this.prismaClient.challenge, query, take, order, cursorId, {
+      place: true,
+      owner: true,
+      players: { include: { player: true } },
     });
-    logger.info(`Challenges fetched: ${challenges.length}`, { count: challenges.length });
+    // const challenges = await this.prismaClient.challenge.findMany({
+    //   take: take,
+    //   ...(cursorId && {
+    //     cursor: { id: cursorId },
+    //     skip: 1,
+    //   }),
+    //   where: query,
+    //   orderBy: { id: order },
+    //   include: {
+    //     place: true,
+    //     owner: true,
+    //     players: { include: { player: true } },
+    //   },
+    // });
+    // logger.info(`Challenges fetched: ${challenges.length}`, { count: challenges.length });
 
-    const lastPostInResults = challenges[take - 1]; // Remember: zero-based index! :)
-    return {
-      results: challenges.map(mapToChallenge),
-      cusrorId: lastPostInResults ? lastPostInResults.id : undefined,
-    };
+    // const lastPostInResults = challenges[take - 1]; // Remember: zero-based index! :)
+    // return {
+    //   results: challenges.map(mapToChallenge),
+    //   cusrorId: lastPostInResults ? lastPostInResults.id : undefined,
+    // };
   }
 }
 
