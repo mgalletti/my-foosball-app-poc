@@ -1,6 +1,34 @@
 # Foosball App POC
 
-A proof of concept application for tracking foosball games and statistics.
+A proof of concept application for organizing and managing foosball challenges between players at various locations.
+
+## What This App Does
+
+The Foosball App enables players to:
+- Create and join foosball challenges at different venues
+- Track player statistics and skill levels
+- Manage venue locations with coordinates and status
+- Organize games by time slots (morning, afternoon, evening, night)
+
+## Business Logic
+
+### Core Entities
+- **Players**: Users with skill levels (beginner, intermediate, expert) and point tracking
+- **Places**: Venues with geographic coordinates and verification status
+- **Challenges**: Game sessions with owners, participants, scheduling, and status tracking
+
+### Challenge Workflow
+1. **Creation**: A player creates a challenge at a specific place and time
+2. **Open**: Other players can join the challenge
+3. **Active**: Challenge is in progress with confirmed participants
+4. **Completed**: Game finished with results recorded
+5. **Terminated**: Challenge cancelled or abandoned
+
+### Key Features
+- Location-based challenge discovery using coordinates
+- Skill-based matchmaking through player expertise levels
+- Time slot organization for better scheduling
+- Player statistics and point system for competitive tracking
 
 ## Prerequisites
 
@@ -93,10 +121,18 @@ npm run format:check
 - `/dist` - Compiled JavaScript (generated after build)
 - `/test` - Test files (not included in production build)
 
-## API Endpoints
+## API Documentation
 
-- `GET /` - Serves the main application
+Interactive API documentation is available at `/api-docs` when the server is running.
+
+### Main Endpoints
 - `GET /api/health` - Check server health
+- `GET /challenges` - List all challenges
+- `POST /challenges` - Create new challenge
+- `GET /places` - List all places
+- `POST /places` - Add new place
+- `GET /players` - List all players
+- `POST /players` - Register new player
 
 ## Technologies Used
 
