@@ -4,27 +4,35 @@ import { placeDataSchema } from '../schemas/place-schema.js';
 import { challengeDataSchema } from '../schemas/challenge-schema.js';
 import { FoosballServiceController } from '../controllers/foosball-service-controller.js';
 import { playerDataSchema } from '../schemas/player-schema.js';
+import { asyncHandler } from '../utils/common.js';
 
 const foosballServiceRouter = Router();
-
 // challenges
 foosballServiceRouter.post(
   '/challenges',
   validateRequest(challengeDataSchema),
-  FoosballServiceController.createChallenge,
+  asyncHandler(FoosballServiceController.createChallenge),
 );
-foosballServiceRouter.get('/challenges', FoosballServiceController.getChallenges);
-foosballServiceRouter.get('/challenges/:id', FoosballServiceController.getChallengeById);
-foosballServiceRouter.delete('/challenges/:id', FoosballServiceController.deleteChallenge);
+foosballServiceRouter.get('/challenges', asyncHandler(FoosballServiceController.getChallenges));
+foosballServiceRouter.get('/challenges/:id', asyncHandler(FoosballServiceController.getChallengeById));
+foosballServiceRouter.delete('/challenges/:id', asyncHandler(FoosballServiceController.deleteChallenge));
 
 // places
-foosballServiceRouter.post('/places', validateRequest(placeDataSchema), FoosballServiceController.createPlace);
-foosballServiceRouter.get('/places', FoosballServiceController.getPlaces);
-foosballServiceRouter.get('/places/:id', FoosballServiceController.getPlaceById);
+foosballServiceRouter.post(
+  '/places',
+  validateRequest(placeDataSchema),
+  asyncHandler(FoosballServiceController.createPlace),
+);
+foosballServiceRouter.get('/places', asyncHandler(FoosballServiceController.getPlaces));
+foosballServiceRouter.get('/places/:id', asyncHandler(FoosballServiceController.getPlaceById));
 
 // players
-foosballServiceRouter.post('/players', validateRequest(playerDataSchema), FoosballServiceController.createPlayer);
-foosballServiceRouter.get('/players', FoosballServiceController.getPlayers);
-foosballServiceRouter.get('/players/:id', FoosballServiceController.getPlayerById);
+foosballServiceRouter.post(
+  '/players',
+  validateRequest(playerDataSchema),
+  asyncHandler(FoosballServiceController.createPlayer),
+);
+foosballServiceRouter.get('/players', asyncHandler(FoosballServiceController.getPlayers));
+foosballServiceRouter.get('/players/:id', asyncHandler(FoosballServiceController.getPlayerById));
 
 export { foosballServiceRouter };

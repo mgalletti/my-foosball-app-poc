@@ -35,9 +35,10 @@ export class FoosballServiceController {
     try {
       const challengeId: string = req.params.id;
       const challengeData = await foosballService.getChallengeById(challengeId);
-      const response = {
-        challenge: challengeData,
-      };
+
+      if (!challengeData) return res.status(404).json({ error: 'Challenge not found' });
+
+      const response = { ...challengeData };
 
       res.status(200).json(response);
     } catch (error) {
@@ -95,9 +96,9 @@ export class FoosballServiceController {
     try {
       const placeId: string = req.params.id;
       const placeData = await foosballService.getPlaceById(placeId);
-      const response = {
-        place: placeData,
-      };
+
+      if (!placeData) return res.status(404).json({ error: 'Place not found' });
+      const response = { ...placeData };
 
       res.status(200).json(response);
     } catch (error) {
@@ -132,9 +133,10 @@ export class FoosballServiceController {
     try {
       const playerId: string = req.params.id;
       const playerData = await foosballService.getPlayerById(playerId);
-      const response = {
-        player: playerData,
-      };
+
+      if (!playerData) return res.status(404).json({ error: 'Player not found' });
+
+      const response = { ...playerData };
 
       res.status(200).json(response);
     } catch (error) {

@@ -13,6 +13,9 @@
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true
   },
+  "ts-node": {
+    "esm": true
+  },
   "isolatedModules": true,
   "types": ["jest", "node"],
   "include": ["src", "src/**/*.yaml", "src/**/*.yml"],
